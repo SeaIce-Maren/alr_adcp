@@ -11,6 +11,8 @@ Requires Gibbs TEOS10 seawater toolbox
 
 See comments in make_dataset.m for more information
 
+Data files for the M44 mission on the DynOPO cruise in 2017 can be found [here (286mb), *.000 for ADCP and Matlab format files](https://www.dropbox.com/scl/fo/ib3flszxo8518jhelfcy9/AC-DX8PZPxzkI3Vn7W_sNRo?rlkey=ic67rwww0lgedy59po48lbdb7&dl=0)
+
 Updated Jan 2018 - EFW
 
 See also ![Flowchart showing the processing for ALR data](ALR_processing_flowchart.png)
