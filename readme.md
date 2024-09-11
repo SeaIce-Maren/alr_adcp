@@ -12,3 +12,5 @@ Requires Gibbs TEOS10 seawater toolbox
 See comments in make_dataset.m for more information
 
 Updated Jan 2018 - EFW
+
+See also ![Flowchart showing the processing for ALR data](ALR_processing_flowchart.png)
