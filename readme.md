@@ -11,7 +11,7 @@ Requires Gibbs TEOS10 seawater toolbox
 
 See comments in make_dataset.m for more information
 
-Data files for the M44 mission on the DynOPO cruise in 2017 can be found [here (286mb), *.000 for ADCP and Matlab format files](https://www.dropbox.com/scl/fo/ib3flszxo8518jhelfcy9/AC-DX8PZPxzkI3Vn7W_sNRo?rlkey=ic67rwww0lgedy59po48lbdb7&dl=0)
+Data files for the M44 mission on the DynOPO cruise in 2017 can be found [here (286mb)](https://www.dropbox.com/scl/fo/ib3flszxo8518jhelfcy9/AC-DX8PZPxzkI3Vn7W_sNRo?rlkey=ic67rwww0lgedy59po48lbdb7&dl=0), *.000 for ADCP and *.mat Matlab format files.
 
 Updated Jan 2018 - EFW
 
