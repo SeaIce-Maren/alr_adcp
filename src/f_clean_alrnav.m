@@ -14,32 +14,38 @@ function [alrclean] = clean_alrnav(alrnav,plotflag);
 % Updated Dec 2017 - EFW
 
 % Might want to set these
-maxLat = -30; % Maximum latitude (anything higher will be NaNed)
-maxLon = -30; % Maximum longitude (anything higher will be NaNed)
+maxLat = -74; % Maximum latitude (anything higher will be NaNed)
+maxLon = -112; % Maximum longitude (anything higher will be NaNed)
 assumed_alr_sampleinterval_in_seconds = 1; % Steve McPhail had this at 1sec on DynOPO
 
-alrnav.time = alrnav.Days_Matlab;
-alrnav = rmfield(alrnav,'Days_Matlab');
+% convert table to structure
+alrnav = table2struct(alrnav,"ToScalar",true);
+
+%alrnav.time = alrnav.Days_Matlab; alrnav = rmfield(alrnav,'Days_Matlab');
+alrnav.time = datenum(datetime(alrnav.epoch_time,'ConvertFrom','epochtime'));
+alrnav = rmfield(alrnav,'epoch_time');
+
+alrnav = rmfield(alrnav,'datetime'); %remove datetime as it clashes with robust_interp1
 
 %% Remove zero positions
 disp('Removing zero lat/lon values')
 alrnav2 = alrnav;
-alrnav2.LngDegs(find(alrnav.LngDegs>maxLon)) = NaN;
-alrnav2.LatDegs(find(alrnav.LatDegs>maxLat)) = NaN;
+alrnav2.longitude(find(alrnav.longitude>maxLon)) = NaN;
+alrnav2.latitude(find(alrnav.latitude>maxLat)) = NaN;
 
 if plotflag
     figure(2);clf
     subplot(211)
-    plot(alrnav.LngDegs,'o')
+    plot(alrnav.longitude,'o')
     hold on
-    plot(alrnav2.LngDegs,'linewidth',2)
+    plot(alrnav2.longitude,'linewidth',2)
     title(['Cleaning Longitude'])
     ylabel('LngDegs')
     axis tight
     subplot(212)
-    plot(alrnav.LatDegs,'o')
+    plot(alrnav.latitude,'o')
     hold on
-    plot(alrnav2.LatDegs,'linewidth',2)
+    plot(alrnav2.latitude,'linewidth',2)
     axis tight
     title(['Cleaning Latitude'])
     ylabel('LatDegs')
@@ -47,29 +53,29 @@ end
 
 %% Clean up pressure skips - should probably average
 disp('Cleaning up pressure skips, due to some pressure reversals...')
-dp = diff(alrnav2.AUVDepth);
+dp = diff(alrnav2.depth);
 izero = find(dp==0);
 inon = find(dp~=0);
 
 % Interpolate over the zeros?
-AUVDepth = alrnav2.AUVDepth;
-AUVDepth(izero) = NaN;
+depth = alrnav2.depth;
+depth(izero) = NaN;
 % Replace, and these will be interpolated over next
-alrnav2.AUVDepth=AUVDepth;
+alrnav2.depth=depth;
 
 if plotflag
     figure(3);clf
     subplot(211)
-    plot(alrnav.AUVDepth,'o')
+    plot(alrnav.depth,'o')
     hold on
-    plot(alrnav2.AUVDepth,'linewidth',2)
+    plot(alrnav2.depth,'linewidth',2)
     axis tight
     ylabel('AUVDepth')
     title(['Pressure'])
     subplot(212)
-    plot(diff(alrnav.AUVDepth),'o')
+    plot(diff(alrnav.depth),'o')
     hold on
-    plot(diff(alrnav2.AUVDepth),'linewidth',2)
+    plot(diff(alrnav2.depth),'linewidth',2)
     axis tight
     ylabel('diff(AUVDepth)')
     title(['Pressure difference'])
@@ -119,8 +125,8 @@ end
 
 %% Would really like to remove the parts where the primary data (time and
 % place) are NaN
-inan = find(isnan(alrnav2.LngDegs+alrnav2.LatDegs+alrnav2.time));
-igood = setdiff(1:length(alrnav2.LngDegs),inan);
+inan = find(isnan(alrnav2.longitude+alrnav2.latitude+alrnav2.time));
+igood = setdiff(1:length(alrnav2.longitude),inan);
 alrnav2 = stc_cut_index(alrnav2,igood);
 
 
@@ -128,13 +134,13 @@ alrnav2 = stc_cut_index(alrnav2,igood);
 % Find the first data below 5 m, then the last time it was deeper than 2 m,
 % before it got deeper than 5 m (to identify the start of the dive)
 alrnav = alrnav2;
-ifirst = find(alrnav.AUVDepth>5,1,'first');
-istart = find(alrnav.AUVDepth(1:ifirst)<2,1,'last');
+ifirst = find(alrnav.depth>5,1,'first');
+istart = find(alrnav.depth(1:ifirst)<2,1,'last');
 
-LL = length(alrnav.AUVDepth);
+LL = length(alrnav.depth);
 
-ilast = find(alrnav.AUVDepth>5,1,'last');
-iend1 = find(alrnav.AUVDepth(ilast:end)<2,1,'first');
+ilast = find(alrnav.depth>5,1,'last');
+iend1 = find(alrnav.depth(ilast:end)<2,1,'first');
 index = ilast:LL;
 iend = index(iend1);
 
@@ -144,11 +150,11 @@ igood = istart:iend;
 if plotflag
     figure(1);clf
     subplot(211)
-    plot(alrnav.AUVDepth,'linewidth',2)
+    plot(alrnav.depth,'linewidth',2)
     axis tight;
     title('AUVDepth [dbar]')
     subplot(212)
-    plot(alrnav.AUVDepth,'linewidth',2)
+    plot(alrnav.depth,'linewidth',2)
     axis tight;
     ylabel('AUVDepth [dbar]')
     
@@ -169,8 +175,8 @@ end
 alrnav2 = stc_cut_index(alrnav,igood);
 
 % Further remove datawhere the PropRPM is zero?
-inonzero=find(alrnav2.PropRPM~=0);
-alrnav2 = stc_cut_index(alrnav2,inonzero);
+%inonzero=find(alrnav2.PropRPM~=0);
+%alrnav2 = stc_cut_index(alrnav2,inonzero);
 
 
 %% Any of the rest, just ditch them? or interpolate across them
