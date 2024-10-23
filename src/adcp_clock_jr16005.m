@@ -17,20 +17,28 @@
 % Written April 2017 - DynOPO JR16005 - EFW
 % Updated Jan 2018 - EFW
 
+rootp = split(pwd,filesep);
+
+ALRdatadir = fullfile(rootp{1:end-2},'ALR','ALR_data');%[dataraw,'alrdata/'];
+datadir = fullfile(rootp{1:end-2},'alr_adcp','adcp_data');
+
+% add location of toolbpoxes to matlab path
+addpath(genpath(fullfile(rootp{1:end-2},'toolboxes')));
+
 % Plot diagnostics
 plotflag=0; % Set to one to turn on plots
 
 % File naming/storage
 file_suffix = '_adcp_timestamps2.mat';
 
-%% Process M41
-mnumstr = '41';
+%% Process M137_M138
+mnumstr = 'M137_M138';
 
 % Load data
-fname = ['alrnav',mnumstr,'.mat'];
-load([dataint,fname],'alrnav');
+fname = ['alrnav_',mnumstr,'.mat'];
+load(fullfile(datadir,fname),'alrnav');
 clear alladcp*
-load([dataint,'M',mnumstr,'_adcp.mat']);
+load(fullfile(datadir,[mnumstr,'_adcp.mat']));
 
 % Fix clock offsets between ALRNAV and adcp data, Assumes ALR clock is correct, and 
 % adjusts ADCP data to it
@@ -44,10 +52,10 @@ rot_upwards = 90; % the heading was incorrectly set on the upwards looking adcp
 alladcp_up = f_rotate_adcp(alladcp_up,rot_upwards);
 
 % Save with fixed timestamps
-disp(['adcp_clock: Saving results to ',dataint,'M',mnumstr,file_suffix])
-save([dataint,'M',mnumstr,file_suffix],'alladcp_dn','alladcp_up')
+disp(['adcp_clock: Saving results to ',datadir,mnumstr,file_suffix])
+save(fullfile(datadir,[mnumstr,file_suffix]),'alladcp_dn','alladcp_up')
 
-
+return
 %% Process M42
 mnumstr = '42';
 

@@ -22,7 +22,7 @@ if plotflag
     figure(2);clf
     plot(adcpdata.time+dt_mean,adcpdata.roll.^2+adcpdata.pitch.^2)
     hold on
-    plot(alrnav.time,alrnav.PitchDeg.^2+alrnav.RollDeg.^2)
+    plot(alrnav.time,alrnav.pitch.^2+alrnav.roll.^2)
     axis tight
     datetick('x','keeplimits')
 end
@@ -32,7 +32,7 @@ dt = diff(alrnav.time);
 ibad = find(dt==0);
 alrtime2 = alrnav.time;
 alrtime2(ibad) = NaN;
-alrpitch2 = alrnav.PitchDeg;
+alrpitch2 = alrnav.pitch;
 alrpitch2(ibad) = NaN;
 
 usedt = .03;
@@ -67,7 +67,7 @@ if plotflag
     subplot(312)
     h1 = plot(adcpdata.time+best_dt,adcpdata.pitch,'linewidth',2);
     hold on
-    plot(alrnav.time,alrnav.PitchDeg)
+    plot(alrnav.time,alrnav.pitch)
     h = plot(adcpdata.time+best_dt,adcpdata.pitch);set(h,'color',get(h1,'color'));
     h = legend('ADCP pitch','Vehicle pitch','location','northwest');
     
@@ -85,7 +85,7 @@ if plotflag
     subplot(313)
     h1 = plot(adcpdata.time+best_dt,adcpdata.roll,'linewidth',2);
     hold on
-    plot(alrnav.time,alrnav.RollDeg)
+    plot(alrnav.time,alrnav.roll)
     h = plot(adcpdata.time+best_dt,adcpdata.roll);set(h,'color',get(h1,'color'));
     h = legend('ADCP roll','Vehicle roll','location','northwest');
     
@@ -188,3 +188,45 @@ sy = nansum(y.^2)-N*meany^2;
 
 rxy = sxy/sqrt(sx*sy);
 
+
+function structout = stc_cut_index(structin,irange);
+% structin = stc_cut_index(structin,irange)
+%
+% Inputs structin structure and irange indices corresponding to the subset of
+% structin vector data to retain.  This is used in CLEAN_ADCP.m to remove all
+% data where lat/lon or time information are missing.
+%
+% Note: Could have bad behavior if there is a lot of missing position data
+% In which case, skip this in clean_adcp.m or adapt it to interpolate
+% positions/times using alternate information
+%
+% Retain data only when the indices are included.
+% works primarily on vector data
+%
+% Created April 2017 - DynOPO JR16005 - EFW
+fnames = fieldnames(structin);
+structout = struct;
+if isfield(structin,'Days_Matlab')
+    mp = length(structin.Days_Matlab);
+elseif isfield(structin,'mtime');
+    mp = length(structin.mtime);
+elseif isfield(structin,'time');
+    mp = length(structin.time);
+end
+
+% Cycle through all fieldnames.
+for fdo = 1:length(fnames)
+    data1 = getfield(structin,fnames{fdo});
+    [AA,BB,CC] = size(data1);
+    if AA==mp
+        data3 = data1(irange,:,:);
+    elseif BB==mp
+        data3 = data1(:,irange,:);
+    elseif CC==mp
+        data3 = data1(:,:,irange);
+    else
+        data3 = data1;
+    end
+    structout = setfield(structout,fnames{fdo},data3);
+    
+end
