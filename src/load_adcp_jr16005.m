@@ -14,7 +14,7 @@
 %
 
 % Set directory to input directory - root input directory
-rootp = split(pwd,'\');
+rootp = split(pwd,filesep);
 
 ALRdatadir = fullfile(rootp{1:end-2},'ALR','ALR_data');%[dataraw,'alrdata/'];
 datadir = fullfile(rootp{1:end-2},'alr_adcp','adcp_data');
