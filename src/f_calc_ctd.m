@@ -14,32 +14,51 @@ if nargin<3
 end
 disp(['alrctd: Removing CTD data where WaterTemperature < ',num2str(minWT),' and WaterConductivity < ',num2str(minWC)])
 
-ibad = find(alrnav.WaterTemperature<minWT|alrnav.WaterConductivity<minWC);
+ibad = find(alrnav.ctd_1_temperature<minWT | alrnav.ctd_2_temperature<minWT | ...
+    alrnav.ctd_1_conductivity<minWC | alrnav.ctd_2_conductivity<minWC);
 alrnav2 = alrnav;
-alrnav2.WaterTemperature(ibad) = NaN;
-alrnav2.WaterConductivity(ibad) = NaN;
-alrnav2.Salinity(ibad) = NaN;
-alrnav2.WaterDensity(ibad) = NaN;
-inan = find(~isnan(alrnav.WaterTemperature));
+alrnav2.ctd_1_temperature(ibad) = NaN;
+alrnav2.ctd_2_temperature(ibad) = NaN;
+alrnav2.ctd_1_conductivity(ibad) = NaN;
+alrnav2.ctd_2_conductivity(ibad) = NaN;
+SP1 = gsw_SP_from_C(alrnav2.ctd_1_conductivity,alrnav2.ctd_1_temperature, alrnav2.ctd_1_pressure);
+SP2 = gsw_SP_from_C(alrnav2.ctd_2_conductivity,alrnav2.ctd_2_temperature, alrnav2.ctd_2_pressure);
+SA1 = gsw_SA_from_SP(SP1,alrnav2.ctd_1_pressure,alrnav2.longitude, alrnav2.latitude);
+SA2 = gsw_SA_from_SP(SP2,alrnav2.ctd_2_pressure,alrnav2.longitude, alrnav2.latitude);
+rho1 = gsw_rho(SA1, gsw_CT_from_t(SA1,alrnav2.ctd_1_temperature,alrnav2.ctd_1_pressure),alrnav2.ctd_1_pressure);
+rho2 = gsw_rho(SA2, gsw_CT_from_t(SA2,alrnav2.ctd_2_temperature,alrnav2.ctd_2_pressure),alrnav2.ctd_2_pressure);
+alrnav2.WaterDensity1 = rho1;
+alrnav2.WaterDensity2 = rho2;
+inan = find(~isnan(alrnav.ctd_1_temperature));
 disp(['- This removed ',num2str(length(ibad)),' points of ',num2str(length(inan)),' total'])
 
 %% Calculate SA, CT
 % Use the Gibbs Seawater toolbox
 % Note that AUVDepth is in units of dbar
 alrnav = alrnav2;
-SP = gsw_SP_from_C(alrnav.WaterConductivity,alrnav.WaterTemperature,alrnav.AUVDepth);
-SA = gsw_SA_from_SP(SP,alrnav.AUVDepth,alrnav.LatDegs,alrnav.LngDegs);
-CT = gsw_CT_from_t(SA,alrnav.WaterTemperature,alrnav.AUVDepth);
-Z = gsw_z_from_p(alrnav.AUVDepth,alrnav.LatDegs);
-sound_speed = gsw_sound_speed(SA,CT,alrnav.AUVDepth);
+% SP = gsw_SP_from_C(alrnav.WaterConductivity,alrnav.WaterTemperature,alrnav.AUVDepth);
+% SA = gsw_SA_from_SP(SP,alrnav.AUVDepth,alrnav.LatDegs,alrnav.LngDegs);
+CT1 = gsw_CT_from_t(SA1,alrnav.ctd_1_temperature,alrnav.ctd_1_pressure);
+CT2 = gsw_CT_from_t(SA2,alrnav.ctd_2_temperature,alrnav.ctd_2_pressure);
+Z1 = gsw_z_from_p(alrnav.ctd_1_pressure,alrnav.latitude);
+Z2 = gsw_z_from_p(alrnav.ctd_2_pressure,alrnav.latitude);
+sound_speed1 = gsw_sound_speed(SA1,CT1,alrnav.ctd_1_pressure);
+sound_speed2 = gsw_sound_speed(SA2,CT2,alrnav.ctd_2_pressure);
 
 alrctd.time = alrnav.time;
-alrctd.temp = alrnav.WaterTemperature;
-alrctd.cond = alrnav.WaterConductivity;
-alrctd.lat = alrnav.LatDegs;
-alrctd.lon = alrnav.LngDegs;
-alrctd.pres = alrnav.AUVDepth;
-alrctd.SA = SA;
-alrctd.CT = CT;
-alrctd.dpth = Z;
-alrctd.sound_speed = sound_speed;
+alrctd.temp = alrnav.ctd_1_temperature;
+alrctd.cond = alrnav.ctd_1_conductivity;
+alrctd.temp2 = alrnav.ctd_2_temperature;
+alrctd.cond2 = alrnav.ctd_2_conductivity;
+alrctd.lat = alrnav.latitude;
+alrctd.lon = alrnav.longitude;
+alrctd.pres = alrnav.ctd_1_pressure;
+alrctd.pres2 = alrnav.ctd_2_pressure;
+alrctd.SA = SA1;
+alrctd.CT = CT1;
+alrctd.SA2 = SA2;
+alrctd.CT2 = CT2;
+alrctd.dpth = Z1;
+alrctd.dpth2 = Z2;
+alrctd.sound_speed = sound_speed1;
+alrctd.sound_speed2 = sound_speed2;
