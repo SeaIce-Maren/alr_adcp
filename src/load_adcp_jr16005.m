@@ -14,15 +14,21 @@
 %
 
 % Set directory to input directory - root input directory
-datadir = [dataraw,'alrdata/'];
+rootp = split(pwd,'\');
 
-%% DynOPO mission M41;
-mnumstr = '41';
+ALRdatadir = fullfile(rootp{1:end-2},'ALR','ALR_data');%[dataraw,'alrdata/'];
+datadir = fullfile(rootp{1:end-2},'alr_adcp','adcp_data');
+
+% add location of toolbpoxes to matlab path
+addpath(genpath(fullfile(rootp{1:end-2},'toolboxes')));
+
+%% TARSAN mission M137_M137;
+mnumstr = 'M137_M138';
 
 % Data directories
-adcpdir = [datadir,'M',mnumstr,'/adcp/'];
-datadir_dn = [adcpdir,'Adcp300Dn_000/'];
-datadir_up = [adcpdir,'Adcp600Dn_000/'];
+adcpdir = datadir;%['ADCPRDI[datadir,'M',mnumstr,'/adcp/'];
+datadir_dn = fullfile(datadir,['ADCPRDIDown_',mnumstr,'.pd0']);%[adcpdir,'Adcp300Dn_000/'];
+datadir_up = fullfile(datadir,['ADCPRDIUp_',mnumstr,'.pd0']);%[adcpdir,'Adcp600Dn_000/'];
 
 % Did a kludgy fix in f_load_adcp since the last file here
 % Adcp600Dn_040417_231608.log seems to have some problem records
@@ -35,10 +41,10 @@ disp(['load_adcp: Loading ADCP files in ',datadir_up])
 alladcp_up = f_load_adcp(datadir_up);
 
 % Save results
-outfile = ['M',mnumstr,'_adcp.mat'];
-disp(['load_adcp: Saving results to ',[dataint,outfile]])
-save([dataint,outfile],'alladcp_dn','alladcp_up');
-
+outfile = [mnumstr,'_adcp.mat'];
+disp(['load_adcp: Saving results to ',fullfile(datadir,outfile)])
+save(fullfile(datadir,outfile),'alladcp_dn','alladcp_up');
+return
 %% DynOPO mission M42;
 mnumstr = '42';
 

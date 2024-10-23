@@ -30,9 +30,9 @@ DD = length(dirlist);
 %end
 for ddo=1:DD
     name1 = dirlist(ddo).name;
-    if length(name1)>3&strcmp(name1(end-2:end),'log')
+    %if length(name1)>3&strcmp(name1(end-2:end),'log')
         qdo=qdo+1;
-        fname = [datadir,name1];
+        fname = datadir;%fullfile(,name1);
         
         % Use the R. Pawl. function (rdradcp) to load the ADCP data
         %adcp = rdradcp(example_filename);
@@ -73,7 +73,7 @@ for ddo=1:DD
         end
         % Increment measurement counter
         zdo = zdo+mp;
-    end
+   % end
 end
 % Get some bad timestamps out
 ibad = find(alladcp.mtime<datenum(2000,0,0));
