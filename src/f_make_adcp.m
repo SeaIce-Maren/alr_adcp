@@ -75,15 +75,25 @@ if length(alladcp_up)
     starboard_port = [flipud(alladcp_dn.east_vel); alladcp_up.east_vel];
     fore_aft = [flipud(alladcp_dn.north_vel); alladcp_up.north_vel];
     vert_vel = [flipud(alladcp_dn.vert_vel); alladcp_up.vert_vel];
+% process original data too (without bad bins excluded in f_clean_adcp.m)
+    starboard_port_orig = [flipud(alladcp_dn.east_vel_orig); alladcp_up.east_vel_orig];
+    fore_aft_orig = [flipud(alladcp_dn.north_vel_orig); alladcp_up.north_vel_orig];
+    vert_vel_orig = [flipud(alladcp_dn.vert_vel_orig); alladcp_up.vert_vel_orig];
 else
     starboard_port = [flipud(alladcp_dn.east_vel)];
     fore_aft = [flipud(alladcp_dn.north_vel)];
     vert_vel = [flipud(alladcp_dn.vert_vel)];
+% process original data too (without bad bins excluded in f_clean_adcp.m)
+    starboard_port_orig = [flipud(alladcp_dn.east_vel_orig)];
+    fore_aft_orig = [flipud(alladcp_dn.north_vel_orig)];
+    vert_vel_orig = [flipud(alladcp_dn.vert_vel_orig)];
 end
 
 % Bottom track velocities
-btvel_fa = alladcp_dn.bt_vel(2,:)/1000; % forward aft;
-btvel_sp = alladcp_dn.bt_vel(1,:)/1000; % starboard port;
+% btvel_fa = alladcp_dn.bt_vel(2,:)/1000; % forward aft;
+% btvel_sp = alladcp_dn.bt_vel(1,:)/1000; % starboard port;
+btvel_fa = alladcp_dn.bt_vel(2,:); % forward aft;
+btvel_sp = alladcp_dn.bt_vel(1,:); % starboard port;
 
 % Clean spikes
 ibad = find(abs(btvel_fa)>5); % Larger than 5 m/s
@@ -109,10 +119,14 @@ btvel_spmat = repmat(btvel_sp,[ZZ 1]);
 watervel_fa = fore_aft - btvel_famat;
 watervel_sp = starboard_port - btvel_spmat;
 
+watervel_fa_orig = fore_aft_orig - btvel_famat;
+watervel_sp_orig = starboard_port_orig - btvel_spmat;
+
 
 % Rotate to earth coordinates
 % Save these - they are the good ones
 [watervel_E,watervel_N] = auv2earth(watervel_sp,watervel_fa,heading_adcptime);
+[watervel_E_orig,watervel_N_orig] = auv2earth(watervel_sp_orig,watervel_fa_orig,heading_adcptime);
 
 
 %% Get the height above bottom
@@ -139,6 +153,8 @@ adcp.lat = robust_interp1(alrnav2.time,alrnav2.latitude,adcp.time,'linear');
 adcp.lon = robust_interp1(alrnav2.time,alrnav2.longitude,adcp.time,'linear');
 adcp.east_vel = watervel_E;
 adcp.north_vel = watervel_N;
+adcp.east_vel_orig = watervel_E_orig;
+adcp.north_vel_orig = watervel_N_orig;
 adcp.bt_range = adcp1.bt_range;
 adcp.height_grid = height_grid;
 adcp.east_velH = Evel_height;
