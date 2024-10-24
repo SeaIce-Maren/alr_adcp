@@ -65,8 +65,8 @@ nvel(ibad) = NaN;
 evel(ibad) = NaN;
 
 % Blank last 3 bins (9-12 for 12-bin setup);
-nvel(end-3:end,:) = NaN;
-evel(end-3:end,:) = NaN;
+%nvel(end-3:end,:) = NaN;
+%evel(end-3:end,:) = NaN;
 
 % Blank the first bin nearest the vehicle
 nvel(1,:) = NaN;
