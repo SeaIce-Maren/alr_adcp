@@ -78,7 +78,7 @@ if length(alladcp_up)
 % process original data too (without bad bins excluded in f_clean_adcp.m)
     starboard_port_orig = [flipud(alladcp_dn.east_vel_orig); alladcp_up.east_vel_orig];
     fore_aft_orig = [flipud(alladcp_dn.north_vel_orig); alladcp_up.north_vel_orig];
-    vert_vel_orig = [flipud(alladcp_dn.vert_vel_orig); alladcp_up.vert_vel_orig];
+   % vert_vel_orig = [flipud(alladcp_dn.vert_vel_orig); alladcp_up.vert_vel_orig];
 else
     starboard_port = [flipud(alladcp_dn.east_vel)];
     fore_aft = [flipud(alladcp_dn.north_vel)];
@@ -86,7 +86,7 @@ else
 % process original data too (without bad bins excluded in f_clean_adcp.m)
     starboard_port_orig = [flipud(alladcp_dn.east_vel_orig)];
     fore_aft_orig = [flipud(alladcp_dn.north_vel_orig)];
-    vert_vel_orig = [flipud(alladcp_dn.vert_vel_orig)];
+  %  vert_vel_orig = [flipud(alladcp_dn.vert_vel_orig)];
 end
 
 % Bottom track velocities
