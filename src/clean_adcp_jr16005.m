@@ -38,6 +38,8 @@ load(fullfile(datadir,[mnumstr,filein_suffix]));
 % Clear out bad bins
 alladcp_dn = f_clean_adcp(alladcp_dn);
 alladcp_up = f_clean_adcp(alladcp_up);
+alladcp_up.east_vel(end-6:end,:) = NaN; %blank last 6 bins for upward looking adcp (but not for downward looking ADCP)
+alladcp_up.north_vel(end-6:end,:) = NaN; %blank last 6 bins for upward looking adcp (but not for downward looking ADCP)
 
 % Save the results
 disp(['clean_adcp: Saving to ',datadir,mnumstr,fileout_suffix])
