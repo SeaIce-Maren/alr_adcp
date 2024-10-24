@@ -51,6 +51,7 @@ if length(alladcp_up);
     % Ranges are positive, and depths are positive, so for deeper depths,
     % add positive ranges
     ranges_comb = [flipud(rangesmat); -rangesmat];
+    
 else
     ranges_comb = flipud(rangesmat);
 end
