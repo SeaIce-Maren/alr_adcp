@@ -26,7 +26,7 @@ datadir = fullfile(rootp{1:end-2},'alr_adcp','adcp_data');
 addpath(genpath(fullfile(rootp{1:end-2},'toolboxes')));
 
 % Plot diagnostics
-plotflag=0; % Set to one to turn on plots
+plotflag=1; % Set to one to turn on plots
 
 % File naming/storage
 file_suffix = '_adcp_timestamps2.mat';
@@ -46,10 +46,11 @@ alladcp_dn = f_clock_offset(alrnav,alladcp_dn,plotflag);
 alladcp_up = f_clock_offset(alrnav,alladcp_up,plotflag);
 % Clean timing - fills in timeskips
 [alladcp_dn,alladcp_up] = f_adcp_time(alladcp_dn,alladcp_up);
+
 % Fix ADCP rotation - special case, if ADCP instrument was setup with wrong
 % rotation
-rot_upwards = 90; % the heading was incorrectly set on the upwards looking adcp
-alladcp_up = f_rotate_adcp(alladcp_up,rot_upwards);
+%rot_upwards = 90; % the heading was incorrectly set on the upwards looking adcp
+%alladcp_up = f_rotate_adcp(alladcp_up,rot_upwards);
 
 % Save with fixed timestamps
 disp(['adcp_clock: Saving results to ',datadir,mnumstr,file_suffix])
