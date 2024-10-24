@@ -36,7 +36,7 @@ NN = round(dtadcp/dtalr);
 alrnav2 = stc_smooth(alrnav,NN);
 
 % Should bin/smooth - alrnav2 is 27797 x 1
-heading_adcptime = robust_interp1(alrnav2.time,alrnav2.HeadingDeg,adcp1.time,'linear');
+heading_adcptime = robust_interp1(alrnav2.time,alrnav2.heading,adcp1.time,'linear');
 depth_adcptime = robust_interp1(alrctd.time,-alrctd.dpth,adcp1.time,'linear');
 
 % Depths are positive downwards
@@ -44,8 +44,8 @@ depthmat = repmat(depth_adcptime(:)',[Zdn 1]);
 rangesmat = repmat(alladcp_dn.config.ranges,[1 TT]);
 
 % Position
-lat_adcptime = robust_interp1(alrnav2.time,alrnav2.LatDegs,adcp1.time,'linear');
-lon_adcptime = robust_interp1(alrnav2.time,alrnav2.LngDegs,adcp1.time,'linear');
+lat_adcptime = robust_interp1(alrnav2.time,alrnav2.latitude,adcp1.time,'linear');
+lon_adcptime = robust_interp1(alrnav2.time,alrnav2.longitude,adcp1.time,'linear');
 
 if length(alladcp_up);
     % Ranges are positive, and depths are positive, so for deeper depths,
@@ -58,7 +58,8 @@ end
 %% Combine upwards and downards into one depth coordinate
 depth_dn = depthmat + rangesmat;
 if length(alladcp_up)
-    depth_up = depthmat + rangesmat;
+    %depth_up = depthmat + rangesmat;
+    depth_up = depthmat - rangesmat;
 end
 
 %% Rotate raw ADCP data from ?forward, starboard, up? to ENU coordinates.
@@ -134,8 +135,8 @@ height_grid = [0:drange:200];
 adcp.time = adcp1.time;
 adcp.ranges = nanmean(ranges_comb,2);
 adcp.depth = depths_comb;
-adcp.lat = robust_interp1(alrnav2.time,alrnav2.LatDegs,adcp.time,'linear');
-adcp.lon = robust_interp1(alrnav2.time,alrnav2.LngDegs,adcp.time,'linear');
+adcp.lat = robust_interp1(alrnav2.time,alrnav2.latitude,adcp.time,'linear');
+adcp.lon = robust_interp1(alrnav2.time,alrnav2.longitude,adcp.time,'linear');
 adcp.east_vel = watervel_E;
 adcp.north_vel = watervel_N;
 adcp.bt_range = adcp1.bt_range;
@@ -219,7 +220,8 @@ height_above(find(isnan(height_above))) = 1000;
 [timemat2,height_grid_mat] = meshgrid(time_index,height_grid);
 
 % Initialise the output
-velogrid = vzeros(HH,TT,'NaN');
+%velogrid = vzeros(HH,TT,'NaN');
+velogrid = NaN(HH,TT);
 
 % Grid into height above bottom
 dh=nanmean(diff(height_grid));
