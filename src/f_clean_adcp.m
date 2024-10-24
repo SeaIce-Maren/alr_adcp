@@ -51,7 +51,8 @@ ibad3 = find(p3>80);
 ibad4 = find(p4<20);
 ibad_pc = union(ibad3,ibad4);
 % Combine all
-ibad = union(ibad_intens,ibad_pc);
+%ibad = union(ibad_intens,ibad_pc);
+ibad = ibad_pc;%test this to see if the pc correnction or the intensity correction is over zealous
 
 % Apply the threshhold
 nvel = adcp1.north_vel;
@@ -65,8 +66,8 @@ nvel(ibad) = NaN;
 evel(ibad) = NaN;
 
 % Blank last 3 bins (9-12 for 12-bin setup);
-%nvel(end-3:end,:) = NaN;
-%evel(end-3:end,:) = NaN;
+nvel(end-3:end,:) = NaN;
+evel(end-3:end,:) = NaN;
 
 % Blank the first bin nearest the vehicle
 nvel(1,:) = NaN;
