@@ -128,7 +128,7 @@ watervel_sp_orig = starboard_port_orig - btvel_spmat;
 % Save these - they are the good ones
 [watervel_E,watervel_N] = auv2earth(watervel_sp,watervel_fa,heading_adcptime);
 [watervel_E_orig,watervel_N_orig] = auv2earth(watervel_sp_orig,watervel_fa_orig,heading_adcptime);
-
+[bottomvel_E,bottomvel_N] = auv2earth(btvel_sp,btvel_fa,heading_adcptime);
 
 %% Get the height above bottom
 cranges = nanmean(ranges_comb,2);
@@ -152,6 +152,8 @@ adcp.ranges = nanmean(ranges_comb,2);
 adcp.depth = depths_comb;
 adcp.lat = robust_interp1(alrnav2.time,alrnav2.latitude,adcp.time,'linear');
 adcp.lon = robust_interp1(alrnav2.time,alrnav2.longitude,adcp.time,'linear');
+adcp.east_vel_bt = bottomvel_E;
+adcp.north_vel_bt = bottomvel_N;
 adcp.east_vel = watervel_E;
 adcp.north_vel = watervel_N;
 adcp.east_vel_orig = watervel_E_orig;
