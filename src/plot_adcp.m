@@ -36,6 +36,7 @@ dpthup = sci.depth-4*8; %depth of fourth bin upwards
 dpthdn = sci.depth+4*8;%depth of fourth bin downwards
 %load(fullfile(datadir,'M137_M138_adcp.mat'));
 
+%% plot results
 fgood = figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
 if exist('adcp','var') %down and upward adcp combined
     sp(1) = subplot(2,1,1);
@@ -99,7 +100,86 @@ end
 
 print(fgood,fullfile(figpath,[mname{pp},'_adcp_data_clean.pdf']),'-dpdf')
 
-% plot wihtout removing bad bins
+%% measured velocity minus depth averaged velocity
+fdiv = figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
+if exist('adcp','var') %down and upward adcp combined
+    sp(1) = subplot(2,1,1);
+    pcolor(adcp.time,adcp.depth, adcp.north_vel - median(adcp.north_vel,1,'omitnan'))
+    hold on
+
+    sp(2) = subplot(2,1,2);
+    pcolor(adcp.time,adcp.depth, adcp.east_vel - median(adcp.east_vel,1,'omitnan'))
+    hold on
+
+end
+for ii = 1:2
+
+    axes(sp(ii))
+    shading flat
+    axis ij
+    grid on
+    ylim([700 1100])
+    xlim([datenum(goodt(pp,:))])
+    datetick('x','HH:MM dd.mm','keeplimits')
+    cb = colorbar;
+    colormap(cmap)
+    clim([-0.1 0.1])
+    set(gca,'fontsize',fs)
+
+    if ii == 1
+        cb.Label.String = 'North Velocity - median north velocity  m/s';
+    else
+        cb.Label.String = 'East Velocity - median east velocity m/s';
+    end
+    ylabel('depth m')
+    xlabel('time date')
+end
+
+print(fdiv,fullfile(figpath,[mname{pp},'_diff_adcp_data_clean.pdf']),'-dpdf')
+
+% %% lineplot of MARS velocity and my velocity
+% % un = sci.sea_current_up_north(2:end);
+% % un = reshape(un(1:floor(length(un)/10)*10),10,[]);
+% % un = median(un,1,'omitnan');
+% un = sci.bottom_track_x(2:end);
+% un = reshape(un(1:floor(length(un)/10)*10),10,[]);
+% un = median(un,1,'omitnan');
+%
+% figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh])
+% sp(1) = subplot(4,1,1);
+% % line(adcp.time,adcp.north_vel(16,:),'color','k')
+% % line(sci.time, sci.sea_current_up_north,'color','b')
+% line(adcp.time,abs(adcp.north_vel_bt),'color','k')
+% %line(sci.time, sci.sea_current_up_north,'color','b')
+% line(sci.time(7:10:end-7), un,'color','b')
+% ylabel('North velocity up bin 4 m/s')
+% legend('ADCP','MARS')
+% title(mname{pp})
+%
+% sp(2) = subplot(4,1,2);
+% line(adcp.time,adcp.east_vel(16,:),'color','k')
+% line(sci.time, sci.sea_current_up_east,'color','b')
+% ylabel('East velocity up bin 4 m/s')
+%
+% sp(3) = subplot(4,1,3);
+% line(adcp.time,adcp.north_vel(9,:),'color','k')
+% line(sci.time, sci.sea_current_up_north,'color','b')
+% ylabel('North velocity down bin 4 m/s')
+%
+%
+% sp(4) = subplot(4,1,4);
+% line(adcp.time,adcp.east_vel(9,:),'color','k')
+% line(sci.time, sci.sea_current_up_east,'color','b')
+% ylabel('East velocity down bin 4 m/s')
+%
+% for ii = 1:4
+% axes(sp(ii))
+% xlim(datenum(goodt(pp,:)))
+% datetick('x','HH:MM dd.mm','keeplimits')
+% xlabel('time date')
+% end
+return
+%% plot wihtout removing bad bins
 figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh])
 if exist('adcp','var') %down and upward adcp combined
     sp(1) = subplot(2,1,1);
