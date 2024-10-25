@@ -21,6 +21,21 @@ load(fullfile(datadir,['alrnav_',mnumstr,'.mat']),'alrnav');
 load(fullfile(datadir,['alrctd_',mnumstr,'.mat']),'alrctd');
 load(fullfile(datadir,[mnumstr,filein_suffix]));
 
+%% only do this from north-south transects into the cavity! %%
+% this means that e.g. M137_M138 needs to be processed twice, once for the
+% "east" transect and once for the "along" transect. Also note that this
+% will cause diffculties at the turn around point of the ALR, but since we
+% will not be using that data anyway this should not impact results. 
+
+% the reson for this fudge is that on the way into the cavity the ALR
+% heading switches between -180 and +180 deg and this seems to cause major
+% issues with the bottom track velocity (jumping from +0.6 m/s to -0.6 m/s)
+% this then causes issues with the processed ADCP data
+
+alrnav.heading = abs(alrnav.heading);
+
+%% end of fudge, proceed a normal
+
 [adcp] = f_make_adcp(alladcp_dn,alladcp_up,alrnav,alrctd);
 
 % Saving the results
