@@ -27,10 +27,13 @@ disp(['clean_alrnav: Expects ALR data to be within ',datadir])
 % Boolean
 plotflag=0; %to generate figures showing the changes
 
+mission = {'M131_M132','M135_M136','M137_M138'};
+
 %% Dynopo M41 % ==============================================
-mnumstr = 'M137_M138';
+for mm = 1:length(mission)
+mnumstr = mission{mm};
 indir = datadir;%[dataraw,'M',mnumstr,'/'];
-fname = 'M137_M138_science.csv';
+fname = [mission{mm},'_science.csv'];
 alrnav = readtable(fullfile(datadir,fname));%load([indir,fname]);
 
 % Clean pressure skips, timing reversals, 0 lat/lon and unphysical T&S
@@ -40,6 +43,8 @@ alrnav = readtable(fullfile(datadir,fname));%load([indir,fname]);
 outfile = fullfile(datadir,['alrnav_',mnumstr,'.mat']);
 disp(['Saving ',outfile])   
 save(outfile,'alrnav');
+clearvars -except datadir plotflag mission mm ALRdatadir rootp
+end
 return
 %% Dynopo M42 % ==============================================
 mnumstr = '42';

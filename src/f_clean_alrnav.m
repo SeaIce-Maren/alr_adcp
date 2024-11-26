@@ -207,6 +207,10 @@ function alrnav2 = f_regrid_time(alrnav,tgrid);
 % 
 % Linearly interpolates onto a new time grid
 %
+% heading does not get interpolated linearly but with nearest naeighbour as
+% linear interpolation gives wrong heading for southward travel (mean of
+% -179 and +179 is 0, not +- 180...) - MER
+%
 % Created April 2017 for ALR data on JR16005/DynOPO - EFW
 fnames = fieldnames(alrnav);
 time = alrnav.time; fname='time';
@@ -229,12 +233,20 @@ for fdo=1:length(fnames)
         imatch = find([TT XX]==mp);
         if imatch==1
             for xdo=1:XX
+                if strcmp(fnames{fdo},'heading')
+                    data2(:,xdo) = robust_interp1(utime,data1(I,xdo),tgrid,'nearest');
+                else
                 data2(:,xdo) = robust_interp1(utime,data1(I,xdo),tgrid,'linear');
+                end
             end
             alrnav2 = setfield(alrnav2,fnames{fdo},data2);
         elseif imatch==2
             for tdo=1:TT
+                if strcmp(fnames{fdo},'heading')
+                    data2(:,xdo) = robust_interp1(utime,data1(I,xdo),tgrid,'nearest');
+                else
                 data2(tdo,:) = robust_interp1(utime,data1(tdo,I),tgrid,'linear');
+                end
             end
             alrnav2 = setfield(alrnav2,fnames{fdo},data2);
         end
@@ -243,7 +255,11 @@ for fdo=1:length(fnames)
         if imatch==3
             dataXXTT = reshape(data1,[TT*XX ZZ]);
             for qdo=1:TT*XX
+                if strcmp(fnames{fdo},'heading')
+                    data2(:,xdo) = robust_interp1(utime,data1(I,xdo),tgrid,'nearest');
+                else
                 data2XXTT(qdo,:) = robust_interp1(utime,dataXXTT(qdo,I),tgrid,'linear');
+                end
             end
             data2 = reshape(data2XXTT,[TT XX T2]);
             alrnav2 = setfield(alrnav2,fnames{fdo},data2);

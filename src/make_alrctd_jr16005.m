@@ -23,10 +23,14 @@ minWC = 0;
 
 
 
-
+mission = {'M131_M132','M135_M136','M137_M138'};
 
 %% Process M137_M138
-mnumstr='M137_M138';
+for mm = 1:length(mission)
+mnumstr = mission{mm};
+
+
+%mnumstr='M137_M138';
 infile = fullfile(datadir,['alrnav_',mnumstr,'.mat']);
 load(infile,'alrnav');
 
@@ -34,6 +38,8 @@ load(infile,'alrnav');
 [alrctd] = f_calc_ctd(alrnav,minWT,minWC);
 
 save(fullfile(datadir,['alrctd_',mnumstr,'.mat']),'alrctd')
+clearvars -except mission mm minWC minWT rootp ALRdatadir datadir
+end
 return
 %% Process M42
 mnumstr='42';

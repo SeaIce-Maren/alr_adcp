@@ -36,7 +36,8 @@ NN = round(dtadcp/dtalr);
 alrnav2 = stc_smooth(alrnav,NN);
 
 % Should bin/smooth - alrnav2 is 27797 x 1
-heading_adcptime = robust_interp1(alrnav2.time,alrnav2.heading,adcp1.time,'linear');
+%heading_adcptime = robust_interp1(alrnav2.time,alrnav2.heading,adcp1.time,'linear');
+heading_adcptime = robust_interp1(alrnav2.time,alrnav2.heading,adcp1.time,'nearest');
 depth_adcptime = robust_interp1(alrctd.time,-alrctd.dpth,adcp1.time,'linear');
 
 % Depths are positive downwards
@@ -162,6 +163,8 @@ adcp.bt_range = adcp1.bt_range;
 adcp.height_grid = height_grid;
 adcp.east_velH = Evel_height;
 adcp.north_velH = Nvel_height;
+adcp.bottom_track_x = btvel_fa;
+adcp.bottom_track_y = btvel_sp;
 
 disp(['length(adcp.time)=',num2str(length(adcp.time)),', and length(alrnav2.time)=',num2str(length(alrnav2.time))])
 

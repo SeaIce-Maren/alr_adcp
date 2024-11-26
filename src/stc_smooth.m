@@ -29,6 +29,12 @@ structout.time = structin.time(irange);
 for fdo=1:length(fnames)
     data1 = getfield(structin,fnames{fdo});
     [TT,XX ] = size(data1);
+
+    if strcmp(fnames{fdo}, 'heading') %boxcar filter of heading causes spikes, thus heading just gets subsampled, not smoothed
+        irange = 1:NN:length(data2); %use a previous data2 to set the length ere
+        data3 = data1(irange);
+        structout = setfield(structout,fnames{fdo},data3(:));
+    else
     if length(data1)~=mp
         structout = setfield(structout,fnames{fdo},data1);
     elseif TT==mp
@@ -40,5 +46,6 @@ for fdo=1:length(fnames)
         
         data3 = data2(irange);
         structout = setfield(structout,fnames{fdo},data3(:));
+    end
     end
 end

@@ -22,8 +22,11 @@ datadir = fullfile(rootp{1:end-2},'alr_adcp','adcp_data');
 % add location of toolbpoxes to matlab path
 addpath(genpath(fullfile(rootp{1:end-2},'toolboxes')));
 
+mission = {'M131_M132','M135_M136','M137_M138'}; %all missions with good data
+
 %% TARSAN mission M137_M137;
-mnumstr = 'M137_M138';
+for mm = 1:length(mission) % loop through all missions
+mnumstr = mission{mm};
 
 % Data directories
 adcpdir = datadir;%['ADCPRDI[datadir,'M',mnumstr,'/adcp/'];
@@ -44,6 +47,8 @@ alladcp_up = f_load_adcp(datadir_up);
 outfile = [mnumstr,'_adcp.mat'];
 disp(['load_adcp: Saving results to ',fullfile(datadir,outfile)])
 save(fullfile(datadir,outfile),'alladcp_dn','alladcp_up');
+clearvars -except mission mm datadir ALRdatadir rootp
+end
 return
 %% DynOPO mission M42;
 mnumstr = '42';

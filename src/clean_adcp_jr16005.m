@@ -30,8 +30,13 @@ addpath(genpath(fullfile(rootp{1:end-2},'toolboxes')));
 filein_suffix = '_adcp_soundspeed3.mat';
 fileout_suffix = '_adcp_clean4.mat';
 
-%% Clean M41
-mnumstr='M137_M138';
+
+mission = {'M131_M132','M135_M136','M137_M138'};
+
+%% Dynopo M41 % ==============================================
+for mm = 1:length(mission)
+mnumstr = mission{mm};
+
 % Load data files
 load(fullfile(datadir,[mnumstr,filein_suffix]));
 
@@ -44,6 +49,9 @@ alladcp_up.north_vel(end-6:end,:) = NaN; %blank last 6 bins for upward looking a
 % Save the results
 disp(['clean_adcp: Saving to ',datadir,mnumstr,fileout_suffix])
 save(fullfile(datadir,[mnumstr,fileout_suffix]),'alladcp_dn','alladcp_up')
+
+clearvars -except mission mm rootp filein_suffix fileout_suffix ALRdatadir datadir
+end
 return
 
 %% Clean M42

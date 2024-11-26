@@ -31,8 +31,12 @@ plotflag=1; % Set to one to turn on plots
 % File naming/storage
 file_suffix = '_adcp_timestamps2.mat';
 
+mission = {'M131_M132','M135_M136','M137_M138'};
+
 %% Process M137_M138
-mnumstr = 'M137_M138';
+
+for mm = 1:length(mission)
+mnumstr = mission{mm};
 
 % Load data
 fname = ['alrnav_',mnumstr,'.mat'];
@@ -49,13 +53,17 @@ alladcp_up = f_clock_offset(alrnav,alladcp_up,plotflag);
 
 % Fix ADCP rotation - special case, if ADCP instrument was setup with wrong
 % rotation
-%rot_upwards = 90; % the heading was incorrectly set on the upwards looking adcp
-%alladcp_up = f_rotate_adcp(alladcp_up,rot_upwards);
+if strcmp(mission{mm},'M131_M132')
+rot_upwards = 90; % the heading was incorrectly set on the upwards looking adcp
+alladcp_up = f_rotate_adcp(alladcp_up,rot_upwards);
+end
 
 % Save with fixed timestamps
 disp(['adcp_clock: Saving results to ',datadir,mnumstr,file_suffix])
 save(fullfile(datadir,[mnumstr,file_suffix]),'alladcp_dn','alladcp_up')
 
+clearvars -except rootp mm mission ALRdatadir datadir file_suffix plotflag
+end
 return
 %% Process M42
 mnumstr = '42';

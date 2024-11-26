@@ -14,7 +14,7 @@ addpath(genpath(fullfile(rootp{1:end-2},'toolboxes')));
 cmap = cmocean('balance');
 
 mname = ["center_short","center_long", "east","along"];
-pp = 3; %which transect are we plotting
+mission = {'M131_M132','M135_M136','M137_M138','M137_M138'};
 
 %figure size
 fw = 28;
@@ -29,17 +29,30 @@ goodt(3,:) = [datetime(2022, 02, 05, 07, 07, 58) datetime(2022, 02, 06, 02, 32, 
 goodt(4,:) = [datetime(2022, 02, 06, 07, 29, 53) datetime(2022, 02, 06, 15, 11, 43)];%TZ_022 dive 3
 
 
-load(fullfile(datadir,'adcp_M137_M138.mat'));
-sci = readtable(fullfile(datadir,'M137_M138_science.csv'));
+%pp = 3; %which transect are we plotting
+
+dispos = get(0, "MonitorPositions");
+dpx = 0.026*dispos(1,1);
+dpy = 0.026*dispos(1,2);
+
+for pp = 1:length(mname)
+
+    mnumstr = mission{pp};
+
+
+load(fullfile(datadir,['alrnav_',mnumstr,'.mat']),'alrnav');
+
+load(fullfile(datadir,['adcp_',mission{pp},'.mat']));
+sci = readtable(fullfile(datadir,[mission{pp},'_science.csv']));
 sci.time = datenum(datetime(sci.epoch_time,'ConvertFrom','epochtime'));
 dpthup = sci.depth-4*8; %depth of fourth bin upwards
 dpthdn = sci.depth+4*8;%depth of fourth bin downwards
 %load(fullfile(datadir,'M137_M138_adcp.mat'));
 
-load(fullfile(ALRdatadir,'input_plot_diss_fft10_east.mat'),'axE','axEps','axChi');
+load(fullfile(ALRdatadir,['input_plot_diss_fft10_',mname{pp},'.mat']),'axE','axEps','axChi');
 
 %% plot results
-fgood = figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
+fgood = figure('units','centimeters','position',[dpx+1 dpy+1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
 if exist('adcp','var') %down and upward adcp combined
     sp(1) = subplot(5,1,[1 2]);
     pcolor(adcp.time,adcp.depth, adcp.north_vel)
@@ -100,11 +113,12 @@ for ii = 1:length(sp)
 
     if ii == 1
         cb.Label.String = 'North Velocity m/s';
-        ylim([700 1100])
+        ylim([700 1300])
         axis ij
+        title(mname{pp})
     elseif ii == 2
         cb.Label.String = 'East Velocity m/s';
-        ylim([700 1100])
+        ylim([700 1300])
         axis ij
     elseif ii == 3
         ylabel('Epsilon W/kg');
@@ -118,7 +132,7 @@ end
 print(fgood,fullfile(figpath,[mname{pp},'_adcp_data_clean.pdf']),'-dpdf')
 
 %% measured velocity minus depth averaged velocity
-fdiv = figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
+fdiv = figure('units','centimeters','position',[dpx+1 dpy+1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
 if exist('adcp','var') %down and upward adcp combined
     sp(1) = subplot(5,1,[1 2]);
     pcolor(adcp.time,adcp.depth, adcp.north_vel - median(adcp.north_vel,1,'omitnan'))
@@ -148,11 +162,12 @@ for ii = 1:length(sp)
     if ii == 1
         cb.Label.String = 'North Velocity - median north velocity  m/s';
         axis ij
-        ylim([700 1100])
+        ylim([700 1300])
+        title(mname{pp})
     elseif ii == 2
         cb.Label.String = 'East Velocity - median east velocity m/s';
         axis ij
-        ylim([700 1100])
+        ylim([700 1300])
     elseif ii == 3
         ylabel('Epsilon W/kg');
         set(gca,'YScale', 'log')
@@ -166,14 +181,16 @@ print(fdiv,fullfile(figpath,[mname{pp},'_diff_adcp_data_clean.pdf']),'-dpdf')
 
 %% calculate shear
 
-ns = median(abs(adcp.north_vel - median(adcp.north_vel,1,'omitnan')),1,'omitnan');
-es = median(abs(adcp.east_vel - median(adcp.east_vel,1,'omitnan')),1,'omitnan');
+ns = median((adcp.north_vel - median(adcp.north_vel,1,'omitnan')),1,'omitnan');
+es = median((adcp.east_vel - median(adcp.east_vel,1,'omitnan')),1,'omitnan');
 %cut to east transect only
-nse = ns(adcp.time >= datenum(goodt(pp,1)) & adcp.time <= datenum(goodt(pp,2)));
-ese = es(adcp.time >= datenum(goodt(pp,1)) & adcp.time <= datenum(goodt(pp,2)));
+%nse = ns(adcp.time >= datenum(goodt(pp,1)) & adcp.time <= datenum(goodt(pp,2)));
+nse = interp1(adcp.time, ns, datenum(axE.x));
+%ese = es(adcp.time >= datenum(goodt(pp,1)) & adcp.time <= datenum(goodt(pp,2)));
+ese = interp1(adcp.time, es, datenum(axE.x));
 t = adcp.time(adcp.time >= datenum(goodt(pp,1)) & adcp.time <= datenum(goodt(pp,2)));
 
-fsh = figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
+fsh = figure('units','centimeters','position',[dpx+1 dpy+1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
 sp(1) = subplot(3,1,1);
 line(adcp.time, ns)
 
@@ -195,7 +212,7 @@ for ii = 1:length(sp)
 
     if ii == 1
         ylabel('North Velocity shear m/s');
-        
+        title(mname{pp})
         %ylim([700 1100])
     elseif ii == 2
         ylabel('East Velocity shear');
@@ -211,18 +228,69 @@ end
 
 print(fsh,fullfile(figpath,[mname{pp},'_shear_adcp_data_clean.pdf']),'-dpdf')
 
-figure
+
+%% correlation between epsilon and shear
+fcor = figure;
 subplot(1,2,1)
-line(nse(1:2:end),log10(axE.y(1,:)),'linestyle','none','marker','.')
+line(nse,log10(axE.y(1,:)),'linestyle','none','marker','.')
 xlabel('north shear m/s')
 ylabel('log_{10} Epsilon 1 W/kg')
+title(mname{pp})
 grid on
 
 subplot(1,2,2)
-line(ese(1:2:end),log10(axE.y(1,:)),'linestyle','none','marker','.')
+line(ese,log10(axE.y(1,:)),'linestyle','none','marker','.')
 xlabel('east shear m/s')
 ylabel('log_{10} Epsilon 1 W/kg')
 grid on
+
+print(fcor, fullfile(figpath, [mname{pp},'_correlation_adcp_shear_epsilon.pdf']),'-dpdf')
+
+%% QC plot
+clear sp
+fqc = figure('units','centimeters','position',[dpx+1 dpy+1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh]);
+sp(1) = subplot(4,1,1);
+plot(adcp.time, adcp.north_vel_bt)
+hold on
+plot(adcp.time, adcp.bottom_track_x)
+plot(sci.time, sci.bottom_track_x)
+ylabel('north/x bottom track')
+legend('adcp north vel bt','adcp bottom track x','sci')
+
+sp(2) = subplot(4,1,2);
+plot(adcp.time, adcp.east_vel_bt)
+hold on
+plot(adcp.time, adcp.bottom_track_y)
+plot(sci.time, sci.bottom_track_y)
+ylabel('east/y bottom track')
+legend('adcp east vel bt','adcp bottom track y','sci')
+
+
+sp(3) = subplot(4,1,3);
+plot(alrnav.time, alrnav.heading)
+hold on
+plot(sci.time, sci.heading)
+ylabel('heading')
+legend('adcp','sci')
+
+
+sp(4) = subplot(4,1,4);
+plot(alrnav.time, abs(alrnav.heading))
+hold on
+plot(sci.time, abs(sci.heading))
+ylabel('abs heading')
+legend('adcp','sci')
+
+for ii = 1:length(sp)
+axes(sp(ii))
+xlim(datenum(goodt(pp,:)))
+title(mname{pp})
+
+datetick('x','keeplimits')
+
+end
+
+
 
 
 % %% lineplot of MARS velocity and my velocity
@@ -266,6 +334,8 @@ grid on
 % datetick('x','HH:MM dd.mm','keeplimits')
 % xlabel('time date')
 % end
+
+end
 return
 %% plot wihtout removing bad bins
 figure('units','centimeters','position',[1 1 fw fh],'PaperUnits','centimeters','PaperSize',[fw fh],'PaperPosition',[0 0 fw fh])

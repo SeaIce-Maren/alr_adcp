@@ -11,6 +11,8 @@ function [adcpdata,dt_add_to_adcp] = f_clock_offset(alrnav,adcpdata,plotflag);
 if nargin<3
     plotflag=0;
 end
+
+
 %% Try to find a variable to compare
 adcp_meantime = nanmean(adcpdata.time);
 alr_meantime = nanmean(alrnav.time);
@@ -36,7 +38,8 @@ alrpitch2 = alrnav.pitch;
 alrpitch2(ibad) = NaN;
 
 usedt = .03;
-dtvec = dt_mean + [-3:usedt:3];
+tstep = -10/24/60:0.1/24/60/60:10/24/60; %10 minutes either side of the median offset with a step of 0.1 seconds
+dtvec = dt_mean + tstep;%[-3:usedt:3];
 allR = zeros(size(dtvec))*NaN;
 for tdo=1:length(dtvec)
     dt1 = dtvec(tdo);

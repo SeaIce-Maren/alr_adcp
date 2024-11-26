@@ -23,8 +23,14 @@ addpath(genpath(fullfile(rootp{1:end-2},'toolboxes')));
 filein_suffix = '_adcp_timestamps2.mat';
 fileout_suffix = '_adcp_soundspeed3.mat';
 
+mission = {'M131_M132','M135_M136','M137_M138'};
+
 %% Process M41
-mnumstr='M137_M138';
+for mm = 1:length(mission)
+mnumstr = mission{mm};
+
+
+
 % Load data files
 load(fullfile(datadir,['alrctd_',mnumstr,'.mat']),'alrctd');
 load(fullfile(datadir,[mnumstr,filein_suffix]));
@@ -35,6 +41,8 @@ load(fullfile(datadir,[mnumstr,filein_suffix]));
 % Save result
 disp(['adcp_soundspeed: Saving results to ',datadir,mnumstr,fileout_suffix])
 save(fullfile(datadir,[mnumstr,fileout_suffix]),'alladcp_dn','alladcp_up');
+clearvars -except mission mm fileout_suffix datadir ALRdatadir rootp filein_suffix
+end
 return
 %% Process M42
 mnumstr='42';
